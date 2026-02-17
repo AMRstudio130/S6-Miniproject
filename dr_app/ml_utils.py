@@ -16,6 +16,10 @@ try:
     from tensorflow.keras.applications.resnet50 import preprocess_input  # type: ignore
     from tensorflow.keras.layers import GlobalAveragePooling2D, Dense  # type: ignore
     from tensorflow.keras import Model  # type: ignore
+    try:
+        from tensorflow.keras import load_model  # type: ignore
+    except ImportError:
+        from keras.saving import load_model  # type: ignore
     TENSORFLOW_AVAILABLE = True
 except ImportError:
     TENSORFLOW_AVAILABLE = False
@@ -49,7 +53,30 @@ class DRClassifier:
                 self.model = None
                 return
             
-            # Load pre-trained ResNet50
+            # Load trained model from file
+            model_path = os.path.join(settings.BASE_DIR, 'dr_app', 'model', 'dr_model.h5')
+            
+            if os.path.exists(model_path):
+                try:
+                    # Load the pre-trained, fine-tuned model
+                    self.model = load_model(model_path)
+                    logger.info(f"Trained model loaded successfully from {model_path}")
+                except Exception as model_load_error:
+                    # Fallback: Build model from scratch if trained model has compatibility issues
+                    logger.warning(f"Could not load trained model: {str(model_load_error)}. Building from scratch...")
+                    self._build_model_from_scratch()
+            else:
+                # Fallback: Build model from scratch if trained model not found
+                logger.warning(f"Trained model not found at {model_path}. Building model from scratch...")
+                self._build_model_from_scratch()
+            
+        except Exception as e:
+            logger.error(f"Error loading model: {str(e)}")
+            raise
+    
+    def _build_model_from_scratch(self):
+        """Build ResNet50 model from scratch for compatibility"""
+        try:
             self.base_model = ResNet50(
                 weights='imagenet',
                 include_top=False,
@@ -67,11 +94,9 @@ class DRClassifier:
                 inputs=self.base_model.input,
                 outputs=predictions
             )
-            
-            logger.info("DR Classifier model loaded successfully")
-            
+            logger.info("Model built from scratch with ResNet50")
         except Exception as e:
-            logger.error(f"Error loading model: {str(e)}")
+            logger.error(f"Error building model from scratch: {str(e)}")
             raise
     
     def preprocess_image(self, image_path):
