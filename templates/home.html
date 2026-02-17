@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DR AI Vision | AI Medical Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script defer src="{% static 'js/script.js' %}"></script>
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">DR AI Vision</div>
+
+        <nav>
+            <ul>
+                <li class="active">Dashboard</li>
+                <li>Upload Scan</li>
+                <li>AI Analysis</li>
+                <li>Grad-CAM</li>
+                <li>Clinical Report</li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main">
+
+        <!-- Top Glass Header -->
+        <div class="topbar">
+            <div class="status-indicator">
+                <span class="dot"></span>
+                AI System Online
+            </div>
+            <div class="user-section">
+                Research Mode
+            </div>
+        </div>
+
+        <!-- Content Wrapper (IMPORTANT FOR RATIO FIX) -->
+        <div class="content-wrapper">
+
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1>AI-Powered Retinal Disease Detection</h1>
+                <p>
+                    Advanced deep learning model with explainable visualization 
+                    for real-time clinical intelligence and diagnostic assistance.
+                </p>
+            </section>
+
+            <!-- Upload Card -->
+            <section class="card">
+
+                <h2>Upload Retinal Fundus Image</h2>
+                <p class="card-subtext">
+                    Supported formats: JPG, PNG | High-resolution recommended
+                </p>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="upload-box">
+                        <input type="file" name="image" required>
+                        <p>Drag & drop or choose file</p>
+                    </div>
+
+                    <button type="submit" class="btn-analyze">
+                        Analyze with AI
+                    </button>
+                </form>
+
+                <!-- AI Loading -->
+                <div id="aiLoader" class="ai-loader hidden">
+                    <div class="spinner"></div>
+                    <p>Neural Network Processing Retina...</p>
+                </div>
+
+                <!-- Result -->
+                {% if prediction %}
+                <div class="result-section fade-in">
+                    <h3>AI Prediction</h3>
+                    <p class="prediction">{{ prediction }}</p>
+
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill"></div>
+                    </div>
+                    <p class="confidence-text">Confidence: {{ confidence|floatformat:2 }}%</p>
+                    <script>
+                        document.getElementById('confidenceFill').style.width = '{{ confidence }}%';
+                    </script>
+
+                    <h4>Grad-CAM Visualization</h4>
+                    <img src="{{ heatmap_url }}" alt="Heatmap">
+                </div>
+                {% endif %}
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<footer>
+    © 2026 DR AI Vision | Explainable AI Medical System
+</footer>
+
+</body>
+</html>
+
+
+
