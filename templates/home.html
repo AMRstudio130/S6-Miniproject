@@ -57,18 +57,18 @@
             </section>
 
             <!-- Upload Card -->
-            <section class="card">
+            <section class="card" id="upload-section">
 
                 <h2>Upload Retinal Fundus Image</h2>
                 <p class="card-subtext">
                     Supported formats: JPG, PNG | High-resolution recommended
                 </p>
 
-                <form method="POST" enctype="multipart/form-data">
+                <form id="uploadForm" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
 
                     <div class="upload-box">
-                        <input type="file" name="image" required>
+                        <input type="file" id="uploadImage" name="image" required>
                         <p>Drag & drop or choose file</p>
                     </div>
 
@@ -84,24 +84,41 @@
                 </div>
 
                 <!-- Result -->
-                {% if prediction %}
-                <div class="result-section fade-in">
-                    <h3>AI Prediction</h3>
-                    <p class="prediction">{{ prediction }}</p>
+                <div id="uploadResult" class="result-section hidden"></div>
 
-                    <div class="confidence-bar">
-                        <div class="confidence-fill" id="confidenceFill"></div>
-                    </div>
-                    <p class="confidence-text">Confidence: {{ confidence|floatformat:2 }}%</p>
-                    <script>
-                        document.getElementById('confidenceFill').style.width = '{{ confidence }}%';
-                    </script>
+            </section>
 
-                    <h4>Grad-CAM Visualization</h4>
-                    <img src="{{ heatmap_url }}" alt="Heatmap">
+            <!-- AI Analysis Card -->
+            <section class="card hidden" id="analysis-section">
+                <h2>AI Analysis</h2>
+                <p>Enter a prediction ID to retrieve AI analysis and heatmap.</p>
+                <div class="form-row">
+                    <input type="text" id="analysisPredictionId" placeholder="Prediction ID">
+                    <button id="btnFetchAnalysis" class="btn">Fetch</button>
                 </div>
-                {% endif %}
+                <div id="analysisResult" class="result-section"></div>
+            </section>
 
+            <!-- Grad-CAM Card -->
+            <section class="card hidden" id="gradcam-section">
+                <h2>Grad-CAM Viewer</h2>
+                <p>Provide a prediction ID to view Grad-CAM overlay.</p>
+                <div class="form-row">
+                    <input type="text" id="gradcamPredictionId" placeholder="Prediction ID">
+                    <button id="btnFetchGradcam" class="btn">Show Grad-CAM</button>
+                </div>
+                <div id="gradcamResult" class="result-section"></div>
+            </section>
+
+            <!-- Clinical Report Card -->
+            <section class="card hidden" id="report-section">
+                <h2>Clinical Report</h2>
+                <p>Generate a brief clinical report from a prediction ID.</p>
+                <div class="form-row">
+                    <input type="text" id="reportPredictionId" placeholder="Prediction ID">
+                    <button id="btnFetchReport" class="btn">Generate</button>
+                </div>
+                <div id="reportResult" class="result-section"></div>
             </section>
 
         </div>
