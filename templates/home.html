@@ -64,11 +64,11 @@
                     Supported formats: JPG, PNG | High-resolution recommended
                 </p>
 
-                <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
 
                     <div class="upload-box">
-                        <input type="file" id="uploadImage" name="image" required>
+                        <input type="file" name="image" required>
                         <p>Drag & drop or choose file</p>
                     </div>
 
@@ -84,7 +84,23 @@
                 </div>
 
                 <!-- Result -->
-                <div id="uploadResult" class="result-section hidden"></div>
+                {% if prediction %}
+                <div class="result-section fade-in" id="uploadResult">
+                    <h3>AI Prediction</h3>
+                    <p class="prediction">{{ prediction }}</p>
+
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill"></div>
+                    </div>
+                    <p class="confidence-text">Confidence: {{ confidence|floatformat:2 }}%</p>
+                    <script>
+                        document.getElementById('confidenceFill').style.width = '{{ confidence }}%';
+                    </script>
+
+                    <h4>Grad-CAM Visualization</h4>
+                    <img src="{{ heatmap_url }}" alt="Heatmap">
+                </div>
+                {% endif %}
 
             </section>
 

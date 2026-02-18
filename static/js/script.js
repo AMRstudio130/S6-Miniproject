@@ -2,51 +2,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const form = document.querySelector("form");
     const loader = document.getElementById("aiLoader");
-    // Upload form handling
-    const uploadForm = document.getElementById('uploadForm');
-    const uploadResult = document.getElementById('uploadResult');
-
-    if(uploadForm) {
-        uploadForm.addEventListener('submit', function(ev) {
-            ev.preventDefault();
-            loader.classList.remove('hidden');
-            uploadResult.classList.add('hidden');
-
-            const fileInput = document.getElementById('uploadImage');
-            const data = new FormData();
-            if(fileInput.files.length === 0) return alert('Please select an image');
-            data.append('image', fileInput.files[0]);
-            // CSRF token
-            const csrf = document.querySelector('input[name=csrfmiddlewaretoken]').value;
-
-            fetch('/api/predict/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrf
-                },
-                body: data
-            }).then(r => r.json())
-            .then(res => {
-                loader.classList.add('hidden');
-                if(res.status === 'success') {
-                    uploadResult.classList.remove('hidden');
-                    uploadResult.innerHTML = `
-                        <h3>Prediction: ${res.stage_name} (${res.stage})</h3>
-                        <p>Confidence: ${res.confidence}%</p>
-                        <img src="${res.heatmap_url}" alt="Grad-CAM" style="max-width:100%;height:auto;"/>
-                        <p>Prediction ID: ${res.prediction_id}</p>
-                    `;
-                } else {
-                    uploadResult.classList.remove('hidden');
-                    uploadResult.innerText = 'Error: ' + (res.message || 'Prediction failed');
-                }
-            }).catch(err => {
-                loader.classList.add('hidden');
-                uploadResult.classList.remove('hidden');
-                uploadResult.innerText = 'Error: ' + err;
-            });
-        });
-    }
+    // Note: Upload uses server-rendered POST (no AJAX) so results are returned
+    // by the server and displayed when the page reloads. We don't intercept submit.
 
     // Sidebar navigation
     const sidebarItems = document.querySelectorAll('.sidebar nav ul li');
